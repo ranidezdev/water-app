@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function CalenderView() {
+export default function CalenderView({ fluidAmount }) {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>CalenderView</Text>

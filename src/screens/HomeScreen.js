@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet  } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Overview from './Overview';
 import CalenderView from './CalenderView';
 import NavigationBar from '../components/NavigationBar';
@@ -7,27 +7,76 @@ import StorageManager from '../utils/StorageManager';
 
 export default function HomeScreen() {
   const [currentView, setCurrentView] = useState('overview');
+  const [fluidAmount, setFluidAmount] = useState(0);
+  const [fluidAmountGoal, setFluidAmountGoal] = useState(0);
+  const [weight, setWeight] = useState('');
+  const [usedDate, setUsedDate] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Initial check for entries in local storage
     StorageManager.checkAndCreateEntries();
+    StorageManager.checkForWeightEntry();
 
-    // console.log("FluidAmount for 06/08/23: ");
-    // StorageManager.getFluidAmount("06/08/23").then(fluidAmount => {
-    //   console.log(fluidAmount); 
-    // });
+    // Set fluidAmount
+    const currentDate = new Date().toLocaleDateString('de-DE');
+    StorageManager.getFluidAmount(currentDate).then((returnedAmount) => {
+      setFluidAmount(returnedAmount);
+    });
+
+    // Set weight and fluidAmountGoal
+    StorageManager.getWeight()
+      .then((returnedAmount) => {
+        setWeight(returnedAmount);
+        setFluidAmountGoal(returnedAmount * 40);
+        setUsedDate(currentDate);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
+  // changes view to overview
   const handleOverviewPress = () => {
     setCurrentView('overview');
   };
 
+  // changes view to calendar
   const handleCalendarPress = () => {
     setCurrentView('calendar');
   };
 
+  // changes value of fluidAmount
+  const handleFluidAmountChange = (date, newFluidAmount) => {
+    StorageManager.setFluidAmount(date, newFluidAmount);
+    setFluidAmount(newFluidAmount);
+  }
+
+  // changes value of weight
+  const handleWeightChange = (newWeight) => {
+    StorageManager.setWeight(newWeight);
+    setWeight(newWeight);
+    setFluidAmountGoal(newWeight * 40);
+    // console.log("handleWeightChange called");
+    // console.log("fluidAmount: " + fluidAmount);
+    // console.log("fluidAmountGoal: " + fluidAmountGoal);
+    // console.log("weight: " + weight);
+    // console.log("usedDate: " + usedDate);
+  }
+  
   return (
     <View style={styles.container}>
-      {currentView === 'overview' ? <Overview /> : <CalenderView />}
+      {isLoading ? ( 
+        <View style={{ flex: 0.9, backgroundColor: '#b3d9ff', justifyContent: 'center', alignItems: 'center', }}></View>
+      ) : (
+        <>
+          {currentView === 'overview' ? (
+            <Overview fluidAmount={fluidAmount} weight={weight} fluidAmountGoal={fluidAmountGoal} overviewDate={usedDate} onFluidAmountChange={handleFluidAmountChange} onWeightChange={handleWeightChange} />
+          ) : (
+            <CalenderView fluidAmount={fluidAmount} />
+          )}
+        </>
+      )}
       <NavigationBar
         onOverviewPress={handleOverviewPress}
         onCalendarPress={handleCalendarPress}

@@ -86,6 +86,42 @@ class StorageManager {
         }
     }
 
+    static async checkForWeightEntry() {
+        try {
+            const entryExists = await AsyncStorage.getItem('bodyweight');
+            if(!entryExists) {
+                await AsyncStorage.setItem('bodyweight', '80.00');
+            }
+        } catch (error) {
+            console.log('Fehler beim Prüfen des Gewichteintrags:', error);
+        }
+    }
+
+    static async getWeight() {
+        try {
+            const entryExists = await AsyncStorage.getItem('bodyweight');
+            if (entryExists) {
+                return entryExists;
+            }
+        } catch (error) {
+            // Falls kein Eintrag gefunden wird, wird 0 zurückgegeben
+            console.log('Fehler beim Abrufen des Gewichtes:', error);
+            return 0;
+        }
+    }
+
+    static async setWeight(weight) {
+        try {
+            const entryExists = await AsyncStorage.getItem('bodyweight');
+            if (entryExists) {
+                await AsyncStorage.setItem('bodyweight', weight);
+                return entryExists;
+            }
+        } catch (error) {
+            console.log('Fehler beim Aktualisieren des Gewichts:', error);
+        }
+    }
+
     // // Method for showing all entries, maybe later usable again
     // static async sampleMethodGetStorage() {
     //     try{
@@ -95,7 +131,6 @@ class StorageManager {
     //         console.log('Fehler:', error);
     //     }
     // }
-
 }
 
 export default StorageManager;
