@@ -13,13 +13,17 @@ class StorageManager {
             const futureDate = new Date();
             futureDate.setDate(currentDate.getDate() + 365);
 
+            const currentDay = currentDate.getDay();
+            const firstDayOfWeek = new Date(currentDate);
+            firstDayOfWeek.setDate(currentDate.getDate() - currentDay + 1);
+
             const entriesExist = await AsyncStorage.getItem('entries');
 
             if(!entriesExist) {
                 // Prüfen ob entries schon im Storage existieren, falls nicht erstell diese
                 const dateEntries = [];
 
-                for(let date = currentDate; date <= futureDate; date.setDate(date.getDate() + 1)) {
+                for(let date = firstDayOfWeek; date <= futureDate; date.setDate(date.getDate() + 1)) {
                     dateEntries.push({ date: date.toLocaleDateString('de-DE'), fluidAmount: 0 });
                 }
 
@@ -122,15 +126,15 @@ class StorageManager {
         }
     }
 
-    // // Method for showing all entries, maybe later usable again
-    // static async sampleMethodGetStorage() {
-    //     try{
-    //         const entriesExist = await AsyncStorage.getItem('entries');
-    //         console.log(entriesExist);
-    //     } catch (error) {
-    //         console.log('Fehler:', error);
-    //     }
-    // }
+    static async getCalenderDays() {
+        try{
+            const entriesExist = await AsyncStorage.getItem('entries');
+            const entries = JSON.parse(entriesExist);
+            return entries; 
+        } catch (error) {
+            console.log('Fehler beim Abrufen des Kalendertage:', error);
+        }
+    }
 }
 
 export default StorageManager;

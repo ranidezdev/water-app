@@ -91,7 +91,7 @@ export default function Overview({ fluidAmount, weight, fluidAmountGoal, overvie
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0.9,
+    flex: 1,
     backgroundColor: '#b3d9ff',
     justifyContent: 'center',
     alignItems: 'center',

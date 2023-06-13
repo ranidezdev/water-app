@@ -12,6 +12,7 @@ export default function HomeScreen() {
   const [weight, setWeight] = useState('');
   const [usedDate, setUsedDate] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [dateEntries, setDateEntries] = useState([]);
 
   useEffect(() => {
     // Initial check for entries in local storage
@@ -22,6 +23,10 @@ export default function HomeScreen() {
     const currentDate = new Date().toLocaleDateString('de-DE');
     StorageManager.getFluidAmount(currentDate).then((returnedAmount) => {
       setFluidAmount(returnedAmount);
+    });
+
+    StorageManager.getCalenderDays().then((returnedDates) => {
+      setDateEntries(returnedDates);
     });
 
     // Set weight and fluidAmountGoal
@@ -57,11 +62,14 @@ export default function HomeScreen() {
     StorageManager.setWeight(newWeight);
     setWeight(newWeight);
     setFluidAmountGoal(newWeight * 40);
-    // console.log("handleWeightChange called");
-    // console.log("fluidAmount: " + fluidAmount);
-    // console.log("fluidAmountGoal: " + fluidAmountGoal);
-    // console.log("weight: " + weight);
-    // console.log("usedDate: " + usedDate);
+  }
+
+  const handleDateChange = (newDate) => {
+    StorageManager.getFluidAmount(newDate).then((returnedAmount) => {
+      setFluidAmount(returnedAmount);
+      setUsedDate(newDate);
+      handleOverviewPress();
+    });
   }
   
   return (
@@ -73,7 +81,7 @@ export default function HomeScreen() {
           {currentView === 'overview' ? (
             <Overview fluidAmount={fluidAmount} weight={weight} fluidAmountGoal={fluidAmountGoal} overviewDate={usedDate} onFluidAmountChange={handleFluidAmountChange} onWeightChange={handleWeightChange} />
           ) : (
-            <CalenderView fluidAmount={fluidAmount} />
+            <CalenderView calendarDays={dateEntries} onDaySelect={handleDateChange} />
           )}
         </>
       )}
